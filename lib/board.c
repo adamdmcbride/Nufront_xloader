@@ -1,6 +1,6 @@
 #include <common.h>
 const char version_string[] =
-	"ns115 X-Loader V2.3 (" __DATE__ " - " __TIME__ ")";
+	"ns115 X-Loader V2.4 (" __DATE__ " - " __TIME__ ")";
 xl_header head;
 char * pLog;
 extern unsigned int busfreq;
