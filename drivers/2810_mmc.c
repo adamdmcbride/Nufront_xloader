@@ -226,7 +226,7 @@ static int SDIOHost_SetSDCLK ( struct sdio_slot *slot, unsigned int *frequency /
 {
 	unsigned int baseclk; /* in KHZ */
 	unsigned int i;
-	unsigned int tmp;
+	unsigned int tmp,tmp2;
 	unsigned int status;
 
 	// set SD clock off
@@ -241,10 +241,12 @@ static int SDIOHost_SetSDCLK ( struct sdio_slot *slot, unsigned int *frequency /
 	//}
 	baseclk = CFG_AHB_SDIO_CLOCK;
 
-	for ( i = 1; i < 256; i = 2 * i ){
+	for ( i = 1; i < 2046; i++ ){
 		if ( ( baseclk / i ) <= *frequency ){
 			break;
 		}
+		if(((baseclk / i) == *frequency) && (baseclk % i) == 0)
+			break;
 	}
 
 	TRACE(KERN_DEBUG,"SetClk %d=%d/%d\n",*frequency,baseclk,i);
@@ -256,7 +258,10 @@ static int SDIOHost_SetSDCLK ( struct sdio_slot *slot, unsigned int *frequency /
 	tmp &= ~SFR11_SEL_FREQ_BASE_MASK;
 
 	// Set SDCLK Frequency Select and Internal Clock Enable
-	tmp |= ( ( i / 2 ) << 8 ) | SFR11_INT_CLOCK_ENABLE;
+	tmp2 =((i / 2) << 8);
+	tmp |=  (tmp2 & 0xff00) | ((tmp2 & 0x30000) >> 10);
+
+	tmp |= SFR11_INT_CLOCK_ENABLE;
 	slot->io->SRS11 = tmp;
 
 	// wait for clock stable is 1
@@ -933,7 +938,8 @@ static int MemoryCard_DataTransfer( struct sdio_slot *slot, unsigned int address
 {
 	unsigned int cmd, argument = 0;
 	int status;
-
+	
+	
 	status = SDIOHost_SelectCard( slot, slot->RCA );
 	if(status)
 		return status;
@@ -1048,11 +1054,17 @@ int sdmmc_continue_boot(int boot_mode)
 	unsigned char * buf = (unsigned char *)DEV_RX_BUF;
 	int sec_cnt = 0;
 	int start_sec = 0;
+	int freq = 25000;
 
 	memcpy(slots, 0x0704E020, sizeof(slots));
 
 	if(slots[1].inserted)
 		i= 1;
+	
+
+	status = SDIOHost_SetSDCLK(&slots[i], &freq);
+	if(status)
+		return status;
 
 
 	TRACE(KERN_INFO, "go on at [%d]\n", i);	
@@ -1084,7 +1096,7 @@ int sdmmc_continue_boot(int boot_mode)
                                 return;
 			}
 
-            enter_entry(head.entry, boot_mode);
+            		enter_entry(head.entry, boot_mode);
 
 	return status;
 }

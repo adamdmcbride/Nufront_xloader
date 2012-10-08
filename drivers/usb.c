@@ -90,14 +90,27 @@ const unsigned char language_descriptor[8] __attribute__ ((aligned (4)))=
 	0x04, 0x03, 0x09, 0x04,
 };
 
-static const unsigned char string_descriptor[] __attribute__ ((aligned (4))) =
+static volatile unsigned char string_descriptor[256] __attribute__ ((aligned (4))) =
 { 
 	//0x12, 0x03, 'x', 0x00, 'l', 0x00, 'o', 0x00, 'a', 0x00, 'd', 0x00, 'e', 0x00, 'r', 0x00, '1', 0x00,
     0x4, 0x03, '?', 0x0,
 };
 
+void init_serial() {
+	extern volatile unsigned char _serialno;
+	unsigned char*  pSerial = &_serialno;
+	unsigned char*  pDest = string_descriptor;
+	int i = 0;
+	for (i = 0; i < (int)_serialno; i++) {
+		*pDest++ = *pSerial++;
+	}
+	//printf("serial_size:%d,%d", (int)string_descriptor[0], i);
+}
+
 void usb_dev_init(void)
 {
+	init_serial();
+
 	int i;
 
 	// Init Step 1 : Programming the Core (6.1)
@@ -275,7 +288,9 @@ void Setup_Tx(unsigned int *data, unsigned int len)
 	for(i=0; i<wlen; i++)
 	{
 		usb_writel(DEVEP0_FF, data[i]);
+		//printf("%x,(%d,%d) ", data[i], i,wlen);
 	}
+	//printf("\n");
 //	wait_cycle(100);
 	do{
 		val = usb_readl(DIEPINT0);
@@ -583,7 +598,8 @@ void handle_setup(unsigned char *rev_buf)
 			if (rev_buf[2] == 0x00) {
 				Setup_Tx(language_descriptor, 0x04);
 			} else {
-				Setup_Tx((unsigned int*)string_descriptor, 0x12);
+				//printf("query_serial:\n");
+				Setup_Tx((unsigned int*)string_descriptor, (unsigned int)string_descriptor[0]);
 			}
 			TRACE(KERN_DEBUG,"In lang desc\n");
 			break;

@@ -1,9 +1,14 @@
 #include <common.h>
+#include <ddr_setting.h>
+
+#define DDR_BASE_ADDR     (0x050e0000)
+
 const char version_string[] =
-	"ns115 X-Loader V2.4 (" __DATE__ " - " __TIME__ ")";
+	"ns115 X-Loader V2.5 (" __DATE__ " - " __TIME__ ")";
 xl_header head;
 char * pLog;
 extern unsigned int busfreq;
+//extern ddr_config ddr_data[102];
 
 unsigned int check_romloader_fastboot() {
     extern unsigned int _romloader_boot_mode;
@@ -30,11 +35,18 @@ void start_armboot (void)
 	cpu_init();
 	ddr_init();
 	mem_test();
+	
+	int idx = 0;
+	for(idx = 0;idx < 102;idx++)
+	{
+		writel(readl(DDR_BASE_ADDR + ddr_data[idx].offset),0xbffff000 + ddr_data[idx].offset);
+	}
+	
     
-    if (check_romloader_fastboot()) {
-        TRACE(KERN_INFO, "enter fastboot USB boot\n");
-        usb_boot(0x02);
-    }
+    	if (check_romloader_fastboot()) {
+        	TRACE(KERN_INFO, "enter fastboot USB boot\n");
+        	usb_boot(0x02);
+   	}
     
     
 	pLog = (char *)CFG_LOG_BUF;
@@ -50,7 +62,7 @@ void start_armboot (void)
 		case 0x00:
 			TRACE(KERN_INFO,"SDIO\n");
 			sdmmc_continue_boot(0x0); 	
-			//sdmmc_boot(0x0); 	
+		//	sdmmc_boot(0x0); 	
 //			break;
 			//if sdmmc_boot success, it should never return; 
 			//if it returns, we should try USB, so no break here
