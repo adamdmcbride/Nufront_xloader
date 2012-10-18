@@ -1,14 +1,16 @@
 #include <common.h>
 #include <ddr_setting.h>
 
+#define SRAM_BASE_ADDR     (0x07000000)
 #define DDR_BASE_ADDR     (0x050e0000)
+#define DDR_DATA_BASE     (0xbffff000)
 
 const char version_string[] =
-	"ns115 X-Loader V2.5 (" __DATE__ " - " __TIME__ ")";
+	"ns115 X-Loader V2.7 (" __DATE__ " - " __TIME__ ")";
 xl_header head;
 char * pLog;
 extern unsigned int busfreq;
-//extern ddr_config ddr_data[102];
+extern int flag;
 
 unsigned int check_romloader_fastboot() {
     extern unsigned int _romloader_boot_mode;
@@ -18,6 +20,15 @@ unsigned int check_romloader_fastboot() {
     return 0;
 }
 
+int is_index_in(int idx)
+{
+	int i;
+	for(i=0;ddr_data[i].offset<=0x378;i++) {
+		if(ddr_data[i].offset == idx)
+			return 1;
+	}
+	return 0;
+}
 void start_armboot (void)
 {
  	volatile int i, size = 20;
@@ -34,12 +45,27 @@ void start_armboot (void)
 #endif
 	cpu_init();
 	ddr_init();
-	mem_test();
+	if(flag == 1) 
+		mem_test();
 	
 	int idx = 0;
-	for(idx = 0;idx < 102;idx++)
+	unsigned int sram_dat = 0, ddr_dat = 0, ctrl_dat = 0;
+	for(idx = 0;idx < 892;)
 	{
-		writel(readl(DDR_BASE_ADDR + ddr_data[idx].offset),0xbffff000 + ddr_data[idx].offset);
+//		ctrl_dat = readl(DDR_BASE_ADDR + idx);	//must be notice the workaround 0xc8;
+		sram_dat = readl(SRAM_BASE_ADDR + idx);
+		writel(sram_dat,DDR_DATA_BASE + idx);
+//		ddr_dat = readl(DDR_DATA_BASE + idx);
+//		idx = idx + 4;
+//		printf("sram_dat = %x;ddr_dat = %x ctrl_dat = 0x%x\n",sram_dat,ddr_dat,ctrl_dat);
+//		ddr_dat = readl(0xbffff000 + idx);
+//			printf("sram_data = %x;ddr_dat = %x\n",sram_data,ddr_dat);
+//		if(ctrl_dat != ddr_dat) {
+//			if(is_index_in(idx))
+//				printf("idx = 0x%x;====ctrl_dat = %x;ddr_dat = %x\n",idx,ctrl_dat,ddr_dat);
+//		}
+	
+		idx = idx + 4;
 	}
 	
     
@@ -242,7 +268,7 @@ void mem_test(void)
                 	printf ("\nFAILURE (read/write): @ 0x%.8lx:"
                                 "expected 0x%.8lx, actual 0x%.8lx)\n",
                                 (ulong)&start[offset], anti_pattern, temp);
-                        return 1;
+                        return ;
                 }
                 start[offset] = 0;
         }

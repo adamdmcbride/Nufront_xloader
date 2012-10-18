@@ -4,6 +4,7 @@
 extern unsigned int busfreq;
 extern unsigned int pu_code;
 extern unsigned int pd_code;
+int flag = 0;
 
 void ddr_sel()
 {
@@ -123,7 +124,7 @@ void ddr_init()
 	unsigned int dram_type;
 	
         work_mode = workmode_sel();
-        debug("ddr init, work mode=0x%x\n",work_mode);
+        printf("ddr init, work mode=0x%x\n",work_mode);
 	dram_type = work_mode >> 28;
 	
 	ddr_reset();
@@ -173,9 +174,19 @@ void ddr_init()
 	{//lpddr2 mode
 		REG_WRITE(DDR_BASE_ADDR + 0x0, 0x20410501);
 	}
-		
-	while(!(REG_READ(DDR_BASE_ADDR+0xd0) & 0x00000020));
-	
+
+	int time = 100000;
+	while(!(REG_READ(DDR_BASE_ADDR+0xd0) & 0x00000020))
+	{
+		//udelay(100);
+		time-- ;
+		if(time == 0)
+		{
+			flag = 1;
+			break;
+		}
+		//break;
+	}
 	//phy_bist(100);
 	
 	//if (dram_type == 1) 

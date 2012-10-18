@@ -62,7 +62,7 @@ reset:
 	MRC     p15, 0, r0, c3, c0, 0      // Read Domain Access Control RegisteR
         LDR     r0, =0x55555555            // This initialize every domain entry to b01 (client)
         MCR     p15, 0, r0, c3, c0, 0      // Write Domain Access Control Register
-#ifdef CFG_NS115_PAD_REF	
+#if CFG_NS115_PAD_REF
 	LDR	r0, =0x06140004
 	LDR 	r1, [r0]
 	ORR	r1,r1,#0x1;

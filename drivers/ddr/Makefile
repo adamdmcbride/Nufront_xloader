@@ -32,10 +32,10 @@ OBJS += k4b2g0846d_k0_cs0_freq333_cl5_bl8.o k4b2g0846d_k0_cs0_freq400_cl6_bl8.o
 endif
 
 ifeq ($(BOARD),ns115_test)
-OBJS += k4b2g1646c_h9_freq333_cl5_bl8.o k4b2g1646c_h9_freq400_cl6_bl8.o
+#OBJS += k4b2g1646c_h9_freq333_cl5_bl8.o k4b2g1646c_h9_freq400_cl6_bl8.o
 #OBJS += edj2116debg_dj_freq333_cl6_bl8.o edj2116debg_dj_freq333_cl6_bl8.o
 #OBJS += mt41j256m16_125_cs1_freq333_cl5_bl8.o mt41j256m16_125_cs1_freq400_cl6_bl8.o
-#OBJS += mt41j256m16_125_cs0_freq333_cl5_bl8.o mt41j256m16_125_cs0_freq400_cl6_bl8.o
+OBJS += mt41j256m16_125_cs0_freq333_cl5_bl8.o mt41j256m16_125_cs0_freq400_cl6_bl8.o
 endif
 
 ifeq ($(BOARD),ns115_phone_ref)

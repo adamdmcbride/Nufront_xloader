@@ -2,7 +2,7 @@
 h5tq2g83cfr_pb_cs0_freq400_cl6_bl8()
 {
 // configuration for h5tq2g83cfr_pb, frequency is 400, 
-// cl is , bl is , cs0 is enable 
+// cl is 6, bl is 8, cs0 is enable 
 REG_WRITE(DDR_BASE_ADDR + 0x0, 0x00000600);
 REG_WRITE(DDR_BASE_ADDR + 0x8, 0x00000004);
 REG_WRITE(DDR_BASE_ADDR + 0x18, 0x00013880);

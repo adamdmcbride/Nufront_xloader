@@ -47,8 +47,8 @@ typedef volatile unsigned char	vu_char;
 #define readl(a)       (*((volatile unsigned int *)(a)))
 #define writel(v,a)    (*((volatile unsigned int *)(a)) = (v))
 
-#define REG_WRITE(addr, value)  (*((volatile unsigned int*)(addr))) = (value)
-#define REG_READ(addr)  (*((volatile unsigned int*)(addr)))
+//#define REG_WRITE(addr, value)  (*((volatile unsigned int*)(addr))) = (value)
+//#define REG_READ(addr)  (*((volatile unsigned int*)(addr)))
 
 typedef struct {
 	char         tag[4];    //NUFX
