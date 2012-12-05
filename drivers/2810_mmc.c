@@ -1054,7 +1054,8 @@ int sdmmc_continue_boot(int boot_mode)
 	unsigned char * buf = (unsigned char *)DEV_RX_BUF;
 	int sec_cnt = 0;
 	int start_sec = 0;
-	int freq = 25000;
+//	int freq = 25000;
+	int freq = 6250;
 
 	memcpy(slots, 0x0704E020, sizeof(slots));
 
